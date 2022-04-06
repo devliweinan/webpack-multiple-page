@@ -8,7 +8,7 @@ const entryFiles = glob.sync(resolve(__dirname, "./src/pages/*/index.js"));
 entryFiles.map(item => { 
   const match = item.match(/src\/pages\/(.*)\/index\.js$/);
   const pageName = match?.[1];
-  console.log(pageName);
+  // console.log(pageName);
   allEntry[pageName] = item;
   htmlWebpackPluginList.push(
     new HtmlWebpackPlugin({
@@ -20,7 +20,7 @@ entryFiles.map(item => {
     })
   );
 });
-console.log(allEntry, htmlWebpackPluginList);
+// console.log(allEntry, htmlWebpackPluginList);
 
 module.exports = {
   mode: "development",
@@ -51,21 +51,25 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: ["@bable/preset-env",
-              {
-                targets: [
-                  "last 1 versions",
-                  ">1%"
-                ],
-                useBuiltIns: "usage"
-              }
-            ]
+        use: [
+          {
+            loader: "babel-loader",
+            options: {
+              presets: [
+                ["@babel/preset-env",
+                  {
+                    targets: [
+                      "last 1 versions",
+                      ">1%"
+                    ],
+                    useBuiltIns: "usage",
+                    corejs: 3
+                  }
+                ]
+              ]
+            }
           }
-        }
-
+        ]
       }
     ]
   },
@@ -77,7 +81,13 @@ module.exports = {
   ],
   optimization: {
     splitChunks: {
-      chunks: "all"
+      cacheGroups: {
+        verdor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: "vendors",
+          chunks: "all"
+        }
+      }
     }
   },
   devServer: {
